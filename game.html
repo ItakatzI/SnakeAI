@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Snake AI Games</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="game">
+  <h1>🐍 AI Comparison Arena</h1>
+  <div class="flex-container">
+    <div class="cell">
+      <h2>Random AI</h2>
+      <p>Moves randomly without logic. Dies quickly, very unpredictable.</p>
+      <canvas id="ai-random" width="400" height="400"></canvas>
+    </div>
+    <div class="cell">
+      <h2>Greedy AI</h2>
+      <p>Uses A* to chase apples. Fast but doesn't check if it's safe.</p>
+      <canvas id="ai-greedy" width="400" height="400"></canvas>
+    </div>
+    <div class="cell">
+      <h2>Tail-Aware AI</h2>
+      <p>Only takes paths to apples if it can still reach its tail.</p>
+      <canvas id="ai-safe" width="400" height="400"></canvas>
+    </div>
+    <div class="cell">
+      <h2>Smart AI</h2>
+      <p>Combines tail-aware A*, safe fallback, and loop detection.</p>
+      <canvas id="ai-smart" width="400" height="400"></canvas>
+    </div>
+  </div>
+  <script src="snake.js"></script>
+</body>
+</html>
