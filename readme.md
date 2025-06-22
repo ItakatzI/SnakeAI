@@ -2,7 +2,7 @@
 
 An interactive simulation comparing four snake-playing AIs side by side. Each AI operates with a different level of intelligence, from random moves to advanced pathfinding with survival logic.
 
-🎮 **Live Demo**: [https://ItakatzI.github.io/SnakeAI](#)
+🎮 **Live Demo**: [https://ikatzir.com/SnakeAI/](#)
 
 ---
 
