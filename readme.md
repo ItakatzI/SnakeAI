@@ -2,7 +2,8 @@
 
 Welcome to **Snake AI Showdown**, a purely vanilla-JS demo of seven ever-smarter snakes battling it out on a 20×20 grid. This README is the project documentation: we explain each AI brain, share debugging war stories, and keep a (slightly hilarious) backlog of TODOs—especially for that rebellious MCTS snake.
 
-🎮 Live Demo: https://ikatzir.com/SnakeAI/
+🎮<a href="https://ikatzir.com/SnakeAI/" target="_blank"> Live Demo </a>
+
 
 ---
 
