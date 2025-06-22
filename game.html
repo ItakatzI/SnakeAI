@@ -1,48 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <title>🐍 Snake AI Showdown</title>
+  <title>🐍 Snake AI Showdown — 7 Levels</title>
   <style>
-    /* ─── RESET & LAYOUT ───────────────────────────────────────────────── */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html,
-    body {
+    /* ─── RESET & BASE LAYOUT ─────────────────────────────────────────── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
       height: 100%;
       background: #111;
       color: #0f0;
       font-family: sans-serif;
       overflow: hidden;
     }
-
     body {
-      margin: 5px;
-      padding: 5px;
       display: flex;
       flex-direction: column;
+      padding: 5px;
       gap: 5px;
     }
-
-    /* ─── HEADER ───────────────────────────────────────────────────────── */
     h1 {
       text-align: center;
       font-size: 1.75rem;
       margin-bottom: 5px;
     }
 
-    /* ─── TABS ─────────────────────────────────────────────────────────── */
+    /* ─── TABS ───────────────────────────────────────────────────────── */
     .tabs {
       display: flex;
       border-bottom: 1px solid #0f0;
       height: 40px;
     }
-
     .tab {
       flex: 1;
       display: flex;
@@ -56,115 +44,114 @@
       user-select: none;
       transition: background 0.2s, color 0.2s;
     }
-
     .tab.active {
       background: #0f0;
       color: #000;
     }
 
-    /* ─── GAME CONTAINER ───────────────────────────────────────────────── */
+    /* ─── GAME CONTAINER ─────────────────────────────────────────────── */
     #game-container {
       position: relative;
       flex: 1;
       background: #1b1b1b;
       overflow: hidden;
-      margin-bottom: 10px;
-      /* ← BORDER MOVED HERE → */
       border-left: 2px solid #0f0;
       border-right: 2px solid #0f0;
       border-bottom: 2px solid #0f0;
     }
 
-    /* ─── PANES ────────────────────────────────────────────────────────── */
+    /* ─── PANES ──────────────────────────────────────────────────────── */
     .pane {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      top: 0; bottom: 0; left: 0; right: 0;
       display: none;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       padding: 5px;
     }
-
     .pane.active {
       display: flex;
     }
-
     .pane h2 {
-      margin: 5px 0;
+      margin: 0 0 5px;
       font-size: 1.2rem;
     }
-
     .pane p {
-      margin-bottom: 5px;
+      margin: 0 0 10px;
       color: #aaa;
       text-align: center;
       font-size: 0.9rem;
     }
 
-    /* ─── CANVAS ───────────────────────────────────────────────────────── */
-
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      margin: auto;
-
-      /* ← enforce perfect 1:1 aspect ratio: */
+    /* ─── CANVAS (SQUARE) ───────────────────────────────────────────── */
+    .pane canvas {
       width: 100%;
       height: auto;
       max-height: 100%;
       aspect-ratio: 1 / 1;
-
       background: #000;
       image-rendering: pixelated;
     }
   </style>
 </head>
-
 <body>
 
-  <h1>🐍 Snake AI Showdown</h1>
+  <h1>🐍 Snake AI Showdown — 7 Levels</h1>
 
   <div class="tabs">
-    <div class="tab active" data-target="random">Random AI</div>
-    <div class="tab" data-target="greedy">Greedy AI</div>
-    <div class="tab" data-target="safe">Tail-Aware AI</div>
-    <div class="tab" data-target="smart">Smart AI</div>
+    <div class="tab active"    data-target="random">1. Random</div>
+    <div class="tab"           data-target="greedy">2. Greedy</div>
+    <div class="tab"           data-target="safe">3. Tail-Aware</div>
+    <div class="tab"           data-target="smart">4. Loop-Safe</div>
+    <div class="tab"           data-target="lookahead">5. Lookahead</div>
+    <div class="tab"           data-target="expectimax">6. Expectimax</div>
+    <div class="tab"           data-target="mcts">7. MCTS</div>
   </div>
 
   <div id="game-container">
     <div class="pane" id="pane-random">
       <h2>Random AI</h2>
-      <p>A drunk snake: picks any safe move at random.</p>
+      <p>Just picks any valid move at random.</p>
       <canvas id="canvas-random"></canvas>
     </div>
     <div class="pane" id="pane-greedy">
       <h2>Greedy AI</h2>
-      <p>Uses A* to chase the apple—smart until it crashes.</p>
+      <p>Follows A* path to the apple, ignores consequences.</p>
       <canvas id="canvas-greedy"></canvas>
     </div>
     <div class="pane" id="pane-safe">
       <h2>Tail-Aware AI</h2>
-      <p>Grabs apple only if tail is still reachable afterward.</p>
+      <p>Only goes for apple if tail remains reachable.</p>
       <canvas id="canvas-safe"></canvas>
     </div>
     <div class="pane" id="pane-smart">
-      <h2>Smart AI</h2>
-      <p>Combines safe A*, tail‐chasing fallback, loop‐detect & auto‐restart.</p>
+      <h2>Loop-Safe AI</h2>
+      <p>Combines tail-awareness + loop detection & auto-restart.</p>
       <canvas id="canvas-smart"></canvas>
+    </div>
+    <div class="pane" id="pane-lookahead">
+      <h2>Lookahead AI</h2>
+      <p>Depth-3 minimax planning of moves ahead.</p>
+      <canvas id="canvas-lookahead"></canvas>
+    </div>
+    <div class="pane" id="pane-expectimax">
+      <h2>Expectimax AI</h2>
+      <p>Depth-2 expectimax factoring random apple spawns.</p>
+      <canvas id="canvas-expectimax"></canvas>
+    </div>
+    <div class="pane" id="pane-mcts">
+      <h2>MCTS AI</h2>
+      <p>Monte Carlo sampling: chooses move with best average survival.</p>
+      <canvas id="canvas-mcts"></canvas>
     </div>
   </div>
 
   <script src="snake.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const tabs = document.querySelectorAll('.tab');
-      const panes = document.querySelectorAll('.pane');
+      const tabs      = document.querySelectorAll('.tab');
+      const panes     = document.querySelectorAll('.pane');
       const instances = {};
 
       function showPane(key) {
@@ -180,10 +167,9 @@
         tab.addEventListener('click', () => showPane(tab.dataset.target));
       });
 
-      // initial
+      // initialize first tab
       showPane('random');
     });
   </script>
 </body>
-
 </html>
