@@ -1,55 +1,64 @@
-const canvasIds = ["ai-random", "ai-greedy", "ai-safe", "ai-smart"];
-const strategies = ["random", "greedy", "safe", "smart"];
-const gridSize = 10;
-const tileCount = 20;
-
 class SnakeGame {
   constructor(canvas, strategy) {
-    this.ctx = canvas.getContext("2d");
-    this.canvas = canvas;
+    this.canvas   = canvas;
+    this.ctx      = canvas.getContext('2d');
     this.strategy = strategy;
+    this.tileCount = 20;
+    this.speed     = 150;
+
+    // Resize buffer to fit integer grid
+    const cw = canvas.clientWidth;
+    const ch = canvas.clientHeight;
+    const gs = Math.floor(Math.min(cw, ch) / this.tileCount);
+    canvas.width  = gs * this.tileCount;
+    canvas.height = gs * this.tileCount;
+    this.gridSize = gs;
+
     this.reset();
     this.loop = setInterval(() => this.update(), this.speed);
   }
 
   reset() {
-    this.snake = [{ x: 10, y: 10 }];
-    this.apple = this.spawnApple();
-    this.speed = 150;
+    this.snake         = [{ x: (this.tileCount/2)|0, y: (this.tileCount/2)|0 }];
+    this.apple         = this.spawnApple();
+    this.prevLength    = 1;
     this.growthCounter = 0;
-    this.prevLength = 1;
-    this.lastHeads = [];
-    this.lastLengths = [];
+    this.lastHeads     = [];
   }
 
   spawnApple() {
     let pos;
     do {
-      pos = { x: Math.floor(Math.random() * tileCount), y: Math.floor(Math.random() * tileCount) };
+      pos = { 
+        x: Math.floor(Math.random() * this.tileCount),
+        y: Math.floor(Math.random() * this.tileCount)
+      };
     } while (this.snake.some(s => s.x === pos.x && s.y === pos.y));
     return pos;
   }
 
   draw() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.drawTile(this.apple, "red");
-    this.snake.forEach((s, i) => this.drawTile(s, i === 0 ? "lime" : "green"));
+    this.drawTile(this.apple, 'red');
+    this.snake.forEach((seg,i) => this.drawTile(seg, i===0?'lime':'green'));
   }
 
-  drawTile(pos, color) {
+  drawTile(p, color) {
     this.ctx.fillStyle = color;
-    this.ctx.fillRect(pos.x * gridSize, pos.y * gridSize, gridSize - 1, gridSize - 1);
+    this.ctx.fillRect(
+      p.x * this.gridSize,
+      p.y * this.gridSize,
+      this.gridSize - 1,
+      this.gridSize - 1
+    );
   }
 
   update() {
-    let move = this.chooseMove();
-    if (!move) {
-      this.restart();
-      return;
-    }
+    const move = this.chooseMove();
+    if (!move) return this.restart();
 
     this.snake.unshift(move);
-
+    // Eat?
     if (move.x === this.apple.x && move.y === this.apple.y) {
       this.apple = this.spawnApple();
       if (this.speed > 50) {
@@ -61,34 +70,24 @@ class SnakeGame {
       this.snake.pop();
     }
 
-    if (this.isCollision(move)) {
-      this.restart();
-      return;
-    }
+    // Collision?
+    if (this.isCollision(move)) return this.restart();
 
-    // Smarter loop detection
+    // Loop detection for Smart
     if (this.snake.length > this.prevLength) {
+      this.prevLength    = this.snake.length;
       this.growthCounter = 0;
-      this.prevLength = this.snake.length;
-      this.lastLengths = [];
-      this.lastHeads = [];
+      this.lastHeads.length = 0;
     } else {
       this.growthCounter++;
-      this.lastLengths.push(this.snake.length);
-      this.lastHeads.push(`${this.snake[0].x},${this.snake[0].y}`);
-      if (this.lastLengths.length > 200) this.lastLengths.shift();
+      this.lastHeads.push(`${move.x},${move.y}`);
       if (this.lastHeads.length > 200) this.lastHeads.shift();
     }
-
-    const loopDetected =
-      this.strategy === "smart" &&
-      this.growthCounter > 150 &&
-      new Set(this.lastHeads.slice(-40)).size < 10;
-
-    if (loopDetected) {
-      console.warn("Smarter loop detected. Restarting...");
-      this.restart();
-      return;
+    if (this.strategy === 'smart'
+        && this.growthCounter > 150
+        && new Set(this.lastHeads.slice(-40)).size < 10
+    ) {
+      return this.restart();
     }
 
     this.draw();
@@ -100,76 +99,70 @@ class SnakeGame {
     this.loop = setInterval(() => this.update(), this.speed);
   }
 
-  isCollision(pos) {
+  isCollision(p) {
     return (
-      pos.x < 0 || pos.y < 0 ||
-      pos.x >= tileCount || pos.y >= tileCount ||
-      this.snake.slice(1).some(p => p.x === pos.x && p.y === pos.y)
+      p.x < 0 || p.y < 0 ||
+      p.x >= this.tileCount || p.y >= this.tileCount ||
+      this.snake.slice(1).some(s => s.x === p.x && s.y === p.y)
     );
   }
 
-  getNeighbors(pos) {
+  getNeighbors(p) {
     return [
-      { x: pos.x + 1, y: pos.y },
-      { x: pos.x - 1, y: pos.y },
-      { x: pos.x, y: pos.y + 1 },
-      { x: pos.x, y: pos.y - 1 },
-    ].filter(p => p.x >= 0 && p.y >= 0 && p.x < tileCount && p.y < tileCount);
+      {x:p.x+1,y:p.y}, {x:p.x-1,y:p.y},
+      {x:p.x,  y:p.y+1}, {x:p.x,  y:p.y-1}
+    ].filter(n =>
+      n.x >= 0 && n.y >= 0 &&
+      n.x < this.tileCount && n.y < this.tileCount
+    );
   }
 
   chooseMove() {
     const head = this.snake[0];
 
-    if (this.strategy === "random") {
-      let moves = this.getNeighbors(head).filter(m => !this.isCollision(m));
-      return moves[Math.floor(Math.random() * moves.length)];
+    if (this.strategy === 'random') {
+      const m = this.getNeighbors(head).filter(n => !this.isCollision(n));
+      return m[Math.floor(Math.random() * m.length)];
     }
 
-    let path = this.aStar(head, this.apple);
-    if (this.strategy === "greedy") {
-      return path?.[1];
+    const path = this.aStar(head, this.apple);
+    if (this.strategy === 'greedy') {
+      return path?.[1] || null;
     }
-
-    if (this.strategy === "safe") {
-      if (path && path.length > 1 && this.isPathSafe(path)) return path[1];
-      return null;
+    if (this.strategy === 'safe') {
+      return (path?.length > 1 && this.isPathSafe(path))
+        ? path[1]
+        : null;
     }
-
-    if (this.strategy === "smart") {
-      if (path && path.length > 1 && this.isPathSafe(path)) return path[1];
-
-      let tail = this.snake[this.snake.length - 1];
-      let tailPath = this.aStar(head, tail);
-      if (tailPath && tailPath.length > 1) return tailPath[1];
-
-      let moves = this.getNeighbors(head).filter(m => !this.isCollision(m));
-      return moves[Math.floor(Math.random() * moves.length)];
+    // smart:
+    if (path?.length > 1 && this.isPathSafe(path)) {
+      return path[1];
     }
-
-    return null;
+    const tail = this.snake[this.snake.length-1];
+    const tp   = this.aStar(head, tail);
+    if (tp?.length > 1) {
+      return tp[1];
+    }
+    const m = this.getNeighbors(head).filter(n => !this.isCollision(n));
+    return m[Math.floor(Math.random() * m.length)];
   }
 
   isPathSafe(path) {
-    let simSnake = JSON.parse(JSON.stringify(this.snake));
-    path.slice(1).forEach(step => simSnake.unshift(step));
-    simSnake.length = this.snake.length + 1;
-
-    let tail = simSnake[simSnake.length - 1];
-    let head = simSnake[0];
-    const occupied = new Set(simSnake.map(p => `${p.x},${p.y}`));
-    occupied.delete(`${tail.x},${tail.y}`);
-
-    const q = [head];
-    const visited = new Set([`${head.x},${head.y}`]);
-
+    const sim = JSON.parse(JSON.stringify(this.snake));
+    path.slice(1).forEach(s => sim.unshift(s));
+    sim.length = this.snake.length + 1;
+    const tail = sim[sim.length-1];
+    const occ  = new Set(sim.map(p => `${p.x},${p.y}`));
+    occ.delete(`${tail.x},${tail.y}`);
+    const q   = [{x:path[0].x,y:path[0].y}];
+    const vis = new Set([`${path[0].x},${path[0].y}`]);
     while (q.length) {
-      const curr = q.shift();
-      if (curr.x === tail.x && curr.y === tail.y) return true;
-
-      this.getNeighbors(curr).forEach(n => {
-        const key = `${n.x},${n.y}`;
-        if (!visited.has(key) && !occupied.has(key)) {
-          visited.add(key);
+      const c = q.shift();
+      if (c.x === tail.x && c.y === tail.y) return true;
+      this.getNeighbors(c).forEach(n => {
+        const k = `${n.x},${n.y}`;
+        if (!vis.has(k) && !occ.has(k)) {
+          vis.add(k);
           q.push(n);
         }
       });
@@ -178,53 +171,47 @@ class SnakeGame {
   }
 
   aStar(start, goal) {
-    const key = (p) => `${p.x},${p.y}`;
-    const openSet = [start];
-    const cameFrom = {};
-    const gScore = { [key(start)]: 0 };
-    const fScore = { [key(start)]: this.heuristic(start, goal) };
-    const occupied = new Set(this.snake.map(p => key(p)));
+    const key      = p => `${p.x},${p.y}`;
+    const open     = [start];
+    const from     = {};
+    const gScore   = {[key(start)]: 0};
+    const fScore   = {[key(start)]: this.heuristic(start,goal)};
+    const occ      = new Set(this.snake.map(p => key(p)));
 
-    while (openSet.length) {
-      openSet.sort((a, b) => fScore[key(a)] - fScore[key(b)]);
-      const current = openSet.shift();
-      if (current.x === goal.x && current.y === goal.y) return this.reconstruct(cameFrom, current);
-
-      for (let neighbor of this.getNeighbors(current)) {
-        const nKey = key(neighbor);
-        if (occupied.has(nKey) && nKey !== key(goal)) continue;
-        let tentative = gScore[key(current)] + 1;
-        if (tentative < (gScore[nKey] || Infinity)) {
-          cameFrom[nKey] = current;
-          gScore[nKey] = tentative;
-          fScore[nKey] = tentative + this.heuristic(neighbor, goal);
-          if (!openSet.some(p => key(p) === nKey)) openSet.push(neighbor);
-        }
+    while (open.length) {
+      open.sort((a,b) => fScore[key(a)] - fScore[key(b)]);
+      const cur = open.shift();
+      if (cur.x===goal.x && cur.y===goal.y) {
+        return this.reconstruct(from,cur);
       }
+      this.getNeighbors(cur).forEach(n => {
+        const k = key(n);
+        if (occ.has(k) && k !== key(goal)) return;
+        const tg = gScore[key(cur)] + 1;
+        if (tg < (gScore[k]||Infinity)) {
+          from[k]    = cur;
+          gScore[k]  = tg;
+          fScore[k]  = tg + this.heuristic(n,goal);
+          if (!open.some(x => key(x) === k)) open.push(n);
+        }
+      });
     }
-
     return null;
   }
 
-  heuristic(a, b) {
-    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  heuristic(a,b) {
+    return Math.abs(a.x-b.x) + Math.abs(a.y-b.y);
   }
 
-  reconstruct(cameFrom, current) {
-    const path = [current];
-    const key = (p) => `${p.x},${p.y}`;
-    while (cameFrom[key(current)]) {
-      current = cameFrom[key(current)];
-      path.unshift(current);
+  reconstruct(from, cur) {
+    const path = [cur], key = p => `${p.x},${p.y}`;
+    while (from[key(cur)]) {
+      cur = from[key(cur)];
+      path.unshift(cur);
     }
     return path;
   }
 }
 
-// Initialize all games on page load
-window.onload = () => {
-  canvasIds.forEach((id, i) => {
-    const canvas = document.getElementById(id);
-    if (canvas) new SnakeGame(canvas, strategies[i]);
-  });
-};
+// Expose globally
+window.SnakeGame = SnakeGame;

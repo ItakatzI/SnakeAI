@@ -1,35 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Snake AI Games</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8" />
+  <title>🐍 Snake AI Showdown</title>
+  <style>
+    /* ─── RESET & LAYOUT ───────────────────────────────────────────────── */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: #111;
+      color: #0f0;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      margin: 5px;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* ─── HEADER ───────────────────────────────────────────────────────── */
+    h1 {
+      text-align: center;
+      font-size: 1.75rem;
+      margin-bottom: 5px;
+    }
+
+    /* ─── TABS ─────────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #0f0;
+      height: 40px;
+    }
+
+    .tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: #000;
+      color: #0f0;
+      border: 1px solid #0f0;
+      border-bottom: none;
+      user-select: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .tab.active {
+      background: #0f0;
+      color: #000;
+    }
+
+    /* ─── GAME CONTAINER ───────────────────────────────────────────────── */
+    #game-container {
+      position: relative;
+      flex: 1;
+      background: #1b1b1b;
+      overflow: hidden;
+      margin-bottom: 10px;
+      /* ← BORDER MOVED HERE → */
+      border-left: 2px solid #0f0;
+      border-right: 2px solid #0f0;
+      border-bottom: 2px solid #0f0;
+    }
+
+    /* ─── PANES ────────────────────────────────────────────────────────── */
+    .pane {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 5px;
+    }
+
+    .pane.active {
+      display: flex;
+    }
+
+    .pane h2 {
+      margin: 5px 0;
+      font-size: 1.2rem;
+    }
+
+    .pane p {
+      margin-bottom: 5px;
+      color: #aaa;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    /* ─── CANVAS ───────────────────────────────────────────────────────── */
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      margin: auto;
+
+      /* ← enforce perfect 1:1 aspect ratio: */
+      width: 100%;
+      height: auto;
+      max-height: 100%;
+      aspect-ratio: 1 / 1;
+
+      background: #000;
+      image-rendering: pixelated;
+    }
+  </style>
 </head>
-<body class="game">
-  <h1>🐍 AI Comparison Arena</h1>
-  <div class="flex-container">
-    <div class="cell">
+
+<body>
+
+  <h1>🐍 Snake AI Showdown</h1>
+
+  <div class="tabs">
+    <div class="tab active" data-target="random">Random AI</div>
+    <div class="tab" data-target="greedy">Greedy AI</div>
+    <div class="tab" data-target="safe">Tail-Aware AI</div>
+    <div class="tab" data-target="smart">Smart AI</div>
+  </div>
+
+  <div id="game-container">
+    <div class="pane" id="pane-random">
       <h2>Random AI</h2>
-      <p>Moves randomly without logic. Dies quickly, very unpredictable.</p>
-      <canvas id="ai-random" width="400" height="400"></canvas>
+      <p>A drunk snake: picks any safe move at random.</p>
+      <canvas id="canvas-random"></canvas>
     </div>
-    <div class="cell">
+    <div class="pane" id="pane-greedy">
       <h2>Greedy AI</h2>
-      <p>Uses A* to chase apples. Fast but doesn't check if it's safe.</p>
-      <canvas id="ai-greedy" width="400" height="400"></canvas>
+      <p>Uses A* to chase the apple—smart until it crashes.</p>
+      <canvas id="canvas-greedy"></canvas>
     </div>
-    <div class="cell">
+    <div class="pane" id="pane-safe">
       <h2>Tail-Aware AI</h2>
-      <p>Only takes paths to apples if it can still reach its tail.</p>
-      <canvas id="ai-safe" width="400" height="400"></canvas>
+      <p>Grabs apple only if tail is still reachable afterward.</p>
+      <canvas id="canvas-safe"></canvas>
     </div>
-    <div class="cell">
+    <div class="pane" id="pane-smart">
       <h2>Smart AI</h2>
-      <p>Combines tail-aware A*, safe fallback, and loop detection.</p>
-      <canvas id="ai-smart" width="400" height="400"></canvas>
+      <p>Combines safe A*, tail‐chasing fallback, loop‐detect & auto‐restart.</p>
+      <canvas id="canvas-smart"></canvas>
     </div>
   </div>
+
   <script src="snake.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.tab');
+      const panes = document.querySelectorAll('.pane');
+      const instances = {};
+
+      function showPane(key) {
+        tabs.forEach(t => t.classList.toggle('active', t.dataset.target === key));
+        panes.forEach(p => p.classList.toggle('active', p.id === 'pane-' + key));
+        if (!instances[key]) {
+          const canvas = document.getElementById('canvas-' + key);
+          instances[key] = new SnakeGame(canvas, key);
+        }
+      }
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => showPane(tab.dataset.target));
+      });
+
+      // initial
+      showPane('random');
+    });
+  </script>
 </body>
+
 </html>
