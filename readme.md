@@ -27,14 +27,14 @@ An interactive simulation comparing four snake-playing AIs side by side. Each AI
 ---
 
 ## 🗂 File Structure
-
+```
 /
 ├── index.html # Landing page
 ├── game.html # Simulation grid with 4 AIs
 ├── style.css # Shared styling
 ├── snake.js # AI logic & simulation engine
 └── README.md # Project overview
-
+```
 ---
 
 ## 🛠 How to Run
