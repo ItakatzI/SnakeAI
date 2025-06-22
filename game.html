@@ -69,6 +69,7 @@
       align-items: center;
       justify-content: center;
       padding: 5px;
+      position: absolute;
     }
     .pane.active {
       display: flex;
@@ -82,6 +83,7 @@
       color: #aaa;
       text-align: center;
       font-size: 0.9rem;
+      
     }
 
     /* ─── CANVAS (SQUARE) ───────────────────────────────────────────── */
@@ -111,38 +113,38 @@
 
   <div id="game-container">
     <div class="pane" id="pane-random">
-      <h2>Random AI</h2>
-      <p>Just picks any valid move at random.</p>
+      <!-- <h2>Random AI</h2>
+      <p>Just picks any valid move at random.</p> -->
       <canvas id="canvas-random"></canvas>
     </div>
     <div class="pane" id="pane-greedy">
-      <h2>Greedy AI</h2>
-      <p>Follows A* path to the apple, ignores consequences.</p>
+      <!-- <h2>Greedy AI</h2>
+      <p>Follows A* path to the apple, ignores consequences.</p> -->
       <canvas id="canvas-greedy"></canvas>
     </div>
     <div class="pane" id="pane-safe">
-      <h2>Tail-Aware AI</h2>
-      <p>Only goes for apple if tail remains reachable.</p>
+      <!-- <h2>Tail-Aware AI</h2>
+      <p>Only goes for apple if tail remains reachable.</p> -->
       <canvas id="canvas-safe"></canvas>
     </div>
     <div class="pane" id="pane-smart">
-      <h2>Loop-Safe AI</h2>
-      <p>Combines tail-awareness + loop detection & auto-restart.</p>
+      <!-- <h2>Loop-Safe AI</h2>
+      <p>Combines tail-awareness + loop detection & auto-restart.</p> -->
       <canvas id="canvas-smart"></canvas>
     </div>
     <div class="pane" id="pane-lookahead">
-      <h2>Lookahead AI</h2>
-      <p>Depth-3 minimax planning of moves ahead.</p>
+      <!-- <h2>Lookahead AI</h2>
+      <p>Depth-3 minimax planning of moves ahead.</p> -->
       <canvas id="canvas-lookahead"></canvas>
     </div>
     <div class="pane" id="pane-expectimax">
-      <h2>Expectimax AI</h2>
-      <p>Depth-2 expectimax factoring random apple spawns.</p>
+      <!-- <h2>Expectimax AI</h2>
+      <p>Depth-2 expectimax factoring random apple spawns.</p> -->
       <canvas id="canvas-expectimax"></canvas>
     </div>
     <div class="pane" id="pane-mcts">
-      <h2>MCTS AI</h2>
-      <p>Monte Carlo sampling: chooses move with best average survival.</p>
+      <!-- <h2>MCTS AI</h2>
+      <p>Monte Carlo sampling: chooses move with best average survival.</p> -->
       <canvas id="canvas-mcts"></canvas>
     </div>
   </div>
