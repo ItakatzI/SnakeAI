@@ -207,4 +207,4 @@ Got ideas—or just want to watch the MCTS snake do this loop again? PRs welcome
 
 ## 📝 License
 
-MIT © katzir & 🤖
+MIT © katzir & 🤖 
