@@ -1,24 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>🐍 Snake AI Showdown — 7 Levels</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     /* ─── RESET & BASE LAYOUT ─────────────────────────────────────────── */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
       height: 100%;
       background: #111;
       color: #0f0;
       font-family: sans-serif;
       overflow: hidden;
     }
+
     body {
       display: flex;
       flex-direction: column;
       padding: 5px;
       gap: 5px;
     }
+
     h1 {
       text-align: center;
       font-size: 1.75rem;
@@ -31,6 +42,7 @@
       border-bottom: 1px solid #0f0;
       height: 40px;
     }
+
     .tab {
       flex: 1;
       display: flex;
@@ -44,6 +56,7 @@
       user-select: none;
       transition: background 0.2s, color 0.2s;
     }
+
     .tab.active {
       background: #0f0;
       color: #000;
@@ -63,7 +76,10 @@
     /* ─── PANES ──────────────────────────────────────────────────────── */
     .pane {
       position: absolute;
-      top: 0; bottom: 0; left: 0; right: 0;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
       display: none;
       flex-direction: column;
       align-items: center;
@@ -71,19 +87,22 @@
       padding: 5px;
       position: absolute;
     }
+
     .pane.active {
       display: flex;
     }
+
     .pane h2 {
       margin: 0 0 5px;
       font-size: 1.2rem;
     }
+
     .pane p {
       margin: 0 0 10px;
       color: #aaa;
       text-align: center;
       font-size: 0.9rem;
-      
+
     }
 
     /* ─── CANVAS (SQUARE) ───────────────────────────────────────────── */
@@ -97,18 +116,19 @@
     }
   </style>
 </head>
+
 <body>
 
   <h1>🐍 Snake AI Showdown — 7 Levels</h1>
 
   <div class="tabs">
-    <div class="tab active"    data-target="random">1. Random</div>
-    <div class="tab"           data-target="greedy">2. Greedy</div>
-    <div class="tab"           data-target="safe">3. Tail-Aware</div>
-    <div class="tab"           data-target="smart">4. Loop-Safe</div>
-    <div class="tab"           data-target="lookahead">5. Lookahead</div>
-    <div class="tab"           data-target="expectimax">6. Expectimax</div>
-    <div class="tab"           data-target="mcts">7. MCTS</div>
+    <div class="tab active" data-target="random">1. Random</div>
+    <div class="tab" data-target="greedy">2. Greedy</div>
+    <div class="tab" data-target="safe">3. Tail-Aware</div>
+    <div class="tab" data-target="smart">4. Loop-Safe</div>
+    <div class="tab" data-target="lookahead">5. Lookahead</div>
+    <div class="tab" data-target="expectimax">6. Expectimax</div>
+    <div class="tab" data-target="mcts">7. MCTS</div>
   </div>
 
   <div id="game-container">
@@ -152,8 +172,8 @@
   <script src="snake.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const tabs      = document.querySelectorAll('.tab');
-      const panes     = document.querySelectorAll('.pane');
+      const tabs = document.querySelectorAll('.tab');
+      const panes = document.querySelectorAll('.pane');
       const instances = {};
 
       function showPane(key) {
@@ -174,4 +194,5 @@
     });
   </script>
 </body>
+
 </html>
