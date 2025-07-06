@@ -71,6 +71,8 @@
       border-left: 2px solid #0f0;
       border-right: 2px solid #0f0;
       border-bottom: 2px solid #0f0;
+      border-top: 2px solid #0f0;
+
     }
 
     /* ─── PANES ──────────────────────────────────────────────────────── */
@@ -218,10 +220,6 @@
       }
     `;
       document.head.appendChild(css);
-
-      // 4) (Re-)activate all panes so every canvas shows up
-      document.querySelectorAll('.pane').forEach(p => p.classList.add('active'));
-      // initialize first tab
       showPane('smart');
 
     }
