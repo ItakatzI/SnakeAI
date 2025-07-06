@@ -193,44 +193,35 @@
 
       // initialize first tab
       showPane('random');
+      // if we’re inside an <iframe> (i.e. not top-level), hide or shrink the H1
+      if (window.self !== window.top) {
+        const h1 = document.querySelector('h1');
+        const pane = document.querySelector('.pane');
+        // either completely hide:
+        // h1.style.display = 'none';
+        // …or just make it much smaller:
+        h1.style.display = 'none';
+        // 2) Hide the tabs bar
+        const tabs = document.querySelector('.tabs');
+        if (tabs) tabs.style.display = 'none';
+  
+        // 3) Override .pane so nothing is hidden
+        const css = document.createElement('style');
+        css.textContent = `
+        .pane {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          height: auto  !important;
+          top: auto   !important;
+          left: auto  !important;
+        }
+      `;
+        showPane('smart');
+  
+      }
     });
 
-    // if we’re inside an <iframe> (i.e. not top-level), hide or shrink the H1
-    if (window.self !== window.top) {
-      const h1 = document.querySelector('h1');
-      const pane = document.querySelector('.pane');
-      // either completely hide:
-      // h1.style.display = 'none';
-      // …or just make it much smaller:
-      h1.style.display = 'none';
-      // 2) Hide the tabs bar
-      const tabs = document.querySelector('.tabs');
-      if (tabs) tabs.style.display = 'none';
-
-      // 3) Override .pane so nothing is hidden
-      const css = document.createElement('style');
-      css.textContent = `
-      .pane {
-        display: block !important;
-        position: static !important;
-        width: 100% !important;
-        height: auto  !important;
-        top: auto   !important;
-        left: auto  !important;
-      }
-    `;
-      function showPane(key) {
-        tabs.forEach(t => t.classList.toggle('active', t.dataset.target === key));
-        panes.forEach(p => p.classList.toggle('active', p.id === 'pane-' + key));
-        if (!instances[key]) {
-          const canvas = document.getElementById('canvas-' + key);
-          instances[key] = new SnakeGame(canvas, key);
-        }
-      }
-      document.head.appendChild(css);
-      showPane('smart');
-
-    }
 
   </script>
 </body>
