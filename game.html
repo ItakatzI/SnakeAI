@@ -187,43 +187,44 @@
         }
       }
 
+      // wire up clicks (even if hidden later)
       tabs.forEach(tab => {
         tab.addEventListener('click', () => showPane(tab.dataset.target));
       });
 
-      // initialize first tab
+      // normal default
       showPane('random');
-      // if we’re inside an <iframe> (i.e. not top-level), hide or shrink the H1
+
+      // if in an iframe, hide title & tabs, inject override CSS, then force “smart”
       if (window.self !== window.top) {
+        // 1) hide the H1
         const h1 = document.querySelector('h1');
-        const pane = document.querySelector('.pane');
-        // either completely hide:
-        // h1.style.display = 'none';
-        // …or just make it much smaller:
-        h1.style.display = 'none';
-        // 2) Hide the tabs bar
-        const tabs = document.querySelector('.tabs');
-        if (tabs) tabs.style.display = 'none';
-  
-        // 3) Override .pane so nothing is hidden
-        const css = document.createElement('style');
-        css.textContent = `
-        .pane {
-          display: block !important;
-          position: static !important;
-          width: 100% !important;
-          height: auto  !important;
-          top: auto   !important;
-          left: auto  !important;
-        }
-      `;
+        if (h1) h1.style.display = 'none';
+
+        // 2) hide the tabs bar
+        const tabsRow = document.querySelector('.tabs');
+        if (tabsRow) tabsRow.style.display = 'none';
+
+        // 3) inject CSS so all .pane are visible/full-width
+        const styleElem = document.createElement('style');
+        styleElem.textContent = `
+      .pane {
+        display: flex !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        top: auto !important;
+        left: auto !important;
+      }
+    `;
+        document.head.appendChild(styleElem);
+
+        // 4) now show the “smart” pane
         showPane('smart');
-  
       }
     });
-
-
   </script>
+
 </body>
 
 </html>
